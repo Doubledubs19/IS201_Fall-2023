@@ -5,17 +5,18 @@ def clear_screen():
 
 def display_board(board):
     clear_screen()
-    print("1" + " | " + "2" + " | " + "3")
-    print("--+---+--")
-    print("4" + " | " + "5" + " | " + "6")
-    print("--+---+--")
-    print("7" + " | " + "8" + " | " +"9")
+    for i in range(0, 9, 3):
+        row = " | ".join([str(idx + 1 + i) if val == ' ' else val for idx, val in enumerate(board[i:i+3])])
+        print(row)
+        if i < 6:
+            print("-" * 9)
+# i want to dynamically keep the board on the screen and then remove the position number when a choice occurs
 
 def check_winner(board, player):
     winning_combinations = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
         [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
-        [0, 4, 8], [2, 4, 6]  # Diagonals REWRITE for scalability
+        [0, 4, 8], [2, 4, 6]  # Diagonals
     ]
     for combo in winning_combinations:
         if all(board[i] == player for i in combo):
@@ -35,7 +36,7 @@ def get_valid_input(board, player):
                 return move
         except ValueError:
             print("Invalid input. Enter a number between 1 and 9.")
-#split into 2 functions
+
 def min_value(board, depth):
     if check_winner(board, "O"):
         return 1
@@ -82,6 +83,7 @@ def find_best_move(board):
                 best_score = score
                 best_move = i
     return best_move
+
 def get_player_choice():
     while True:
         choice = input("Choose 'X' or 'O' to play: ").upper()
@@ -89,27 +91,38 @@ def get_player_choice():
             return choice
         else:
             print("Invalid choice. Please enter 'X' or 'O.'")
-#think about constructor instead of new finction
+
 def play_tic_tac_toe():
     board = [" " for _ in range(9)]
-    player = get_player_choice()  # Get player's choice
-    computer = "O" if player == "X" else "X"  # Set the other value for the computer
-    current_player = player  # Initialize current_player
-
+    player = get_player_choice()
+    computer = "O" if player == "X" else "X"
+    current_player = player
+    
     print(f"You are playing as {player}. Computer is {computer}.")
+    
+    # Ask the user if they want to play first
+    while True:
+        user_choice = input("Do you want to play first? (y/n): ").lower()
+        if user_choice == 'y':
+            current_player = player
+            break
+        elif user_choice == 'n':
+            current_player = computer
+            break
+        else:
+            print("Invalid choice. Please enter 'y' or 'n'.")
 
     while True:
         display_board(board)
 
         if current_player == computer:
-            # Computer's move using minimax
             move = find_best_move(board)
-            board[move] = computer  # Set computer's choice
-
-            display_board(board)
+            board[move] = computer
         else:
-            # Human's move
+            display_board(board)
             move = get_valid_input(board, current_player)
+            board[move] = current_player
+            clear_screen()  # clear screen after player's move to hide positions
 
         if check_winner(board, current_player):
             display_board(board)
@@ -122,7 +135,7 @@ def play_tic_tac_toe():
             break
 
         current_player = player if current_player == computer else computer
-# define a "main function" instead
+
 if __name__ == "__main__":
     while True:
         clear_screen()
@@ -130,4 +143,3 @@ if __name__ == "__main__":
         play_again = input("Play again? (y/n): ").lower()
         if play_again != "y":
             break
-        
